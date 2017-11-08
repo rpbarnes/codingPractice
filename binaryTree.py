@@ -13,23 +13,24 @@ To do:
 import random
 from drawtree import draw_level_order
 
-class Node:
-    def __init__(self, parent):
+class Node:# {{{
+    def __init__(self, parent):# {{{
         self.parent = parent
         self.value = None
         self.left = None
-        self.right = None
+        self.right = None# }}}
 
-    def hasChildren(self):
+    def hasChildren(self):# {{{
         if self.right or self.left:
-            return True
+            return True# }}}}}}
 
 class Tree:
-    def __init__(self):
+    def __init__(self):# {{{
         self.head = Node(None)
-        self.maxLeafDepth = 0
+        self._len = 0
+        self.maxLeafDepth = 0# }}}
 
-    def insert(self, value):
+    def insert(self, value):# {{{
         """
         Inserts value into tree in correctly sorted position. Call as treeInstance.insert(value). value is type int.
         
@@ -50,6 +51,7 @@ class Tree:
                         newNode = Node(node)
                         node.left = newNode
                         newNode.value = value
+                        self._len += 1
                         break
                     else:
                         node = node.left # this continues the while loop with the new node.
@@ -58,20 +60,22 @@ class Tree:
                         newNode = Node(node)
                         node.right = newNode
                         newNode.value = value
+                        self._len += 1
                         break
                     else:
                         node = node.right
                 else:
+                    print "%i is already present in the tree. Not adding"%value
                     break
                 depth += 1
             if depth > self.maxLeafDepth:
-                self.maxLeafDepth = depth
+                self.maxLeafDepth = depth# }}}
     
-    def findValue(self, value):
+    def findValue(self, value):# {{{
         "this finds the node that contains the corresponding value. Returns the node"
-        return self._findValue(value, self.head)
+        return self._findValue(value, self.head)# }}}
 
-    def _findValue(self, value, node):
+    def _findValue(self, value, node):# {{{
         if node and node.value:
             if value < node.value:
                 return self._findValue(value, node.left)
@@ -82,16 +86,15 @@ class Tree:
 
         else:
             print "%i not found in tree"%value
-            return None
-
+            return None# }}}
     
-    def findFullDepth(self):
+    def findFullDepth(self):# {{{
         "This finds the depth of the deepest full level in the tree. Returns (int) equal to lowest fully occupied level"
         self.lowestFullLevel = None
         self._findFullDepth(self.head, 0)
-        return self.lowestFullLevel
+        return self.lowestFullLevel# }}}
 
-    def _findFullDepth(self, node, count):
+    def _findFullDepth(self, node, count):# {{{
         "This needs to run any time I want to know the deepest full level. How can you keep track of this nicely on addition?"
         if node:
             if self.lowestFullLevel:
@@ -106,31 +109,31 @@ class Tree:
                 if self.lowestFullLevel > count:
                     self.lowestFullLevel = count
             else:
-                self.lowestFullLevel = count
+                self.lowestFullLevel = count# }}}
 
-    def minNode(self):
-        return self._minNode(self.head)
+    def minNode(self):# {{{
+        return self._minNode(self.head)# }}}
 
-    def _minNode(self,node):
+    def _minNode(self,node):# {{{
         if node.left:
             return self._minNode(node.left)
         else:
-            return node
+            return node# }}}
     
-    def nodeLeft(self, node):
-        return node.left
+    def nodeLeft(self, node):# {{{
+        return node.left# }}}
 
-    def nodeRight(self, node):
-        return node.right
+    def nodeRight(self, node):# {{{
+        return node.right# }}}
 
-    def drawTree(self):
+    def drawTree(self):# {{{
         """ This package I'm using doesn't work. It says the tree is way longer than it is and it's also unsorted. I'd rather show it in a plot than in the command line. """
         self.drawString = ''
         self._drawTree(self.head)
         print self.drawString
-        draw_level_order(self.drawString)
+        draw_level_order(self.drawString)# }}}
 
-    def _drawTree(self,node):
+    def _drawTree(self,node):# {{{
         "returns a list to draw the tree with the package drawtree"
         if node:
             if self.drawString == '':
@@ -140,13 +143,13 @@ class Tree:
             self._drawTree(node.left)
             self._drawTree(node.right)
         else:
-            self.drawString += ',#'
+            self.drawString += ',#'# }}}
 
-    def printFromHead(self):
+    def printFromHead(self):# {{{
         "prints the tree from top down left to right. This doesn't really do what I want it to do."
-        self._printFromHead(self.head)
+        self._printFromHead(self.head)# }}}
 
-    def _printFromHead(self, node):
+    def _printFromHead(self, node):# {{{
         if node:
             if not node.parent:
                 print node.value
@@ -158,25 +161,64 @@ class Tree:
                 elif node.right:
                     print '# ', node.right.value 
             self._printFromHead(node.left)
-            self._printFromHead(node.right)
+            self._printFromHead(node.right)# }}}
 
-    def printTree(self):
+    def printTree(self):# {{{
         "called by user to print the tree"
-        self._printTree(self.head)
+        self._printTree(self.head)# }}}
 
-    def _printTree(self,node):
+    def _printTree(self,node):# {{{
         if node:
             self._printTree(node.left)
             print node.value
             self._printTree(node.right)
         else:
+            return# }}}
+
+    def toVine(self):
+        """
+        This converts the tree to a vine (doubly linked list)
+
+        returns vine in place of binary tree.
+
+        """
+        # find min before converting to vine
+        self.minimum = self.minNode()
+        self._toVine(self.head)
+
+    def _toVine(self,node):
+        if node.left:
+            node.left = self._toVine(node.left)
+        if node.right:
+            node.right = self._toVine(node.right)
+        if not node.left and not node.right:
+            return node
+
+    def printVine(self):
+        node = self.minimum
+        while node:
+            print node.value
+            node = node.right
+    
+    def _printVine(self,node):
+        if node:
+            print node.value
+            self._printVine(node.right)
+        else:
             return
 
+    def integrityCheck(self):
+        """ 
+        This checks the integrity of the vine that is produced. It checks the length of the vine against self._len and checks that values increase from left to right.
+
+        returns True if integrity check is passed
+
+        """
 
 
 # test the tree
 bt = Tree()
-for i in range(100):
+for i in range(10):
     bt.insert(random.randint(0,100))
 
 bt.printTree()
@@ -185,5 +227,5 @@ print "the depth is"
 print bt.findFullDepth()
 print "the minimum is %i" %bt.minNode().value
 
-#print "looking for value 92"
-#print "found %i" %bt.findValue(92).value
+bt.toVine()
+bt.printVine()
